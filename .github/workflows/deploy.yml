@@ -24,7 +24,7 @@ jobs:
          # Run MSDeploy command
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
-            -source:contentPath='C:\www\Testone' `
+            -source:contentPath='$(Build.SourcesDirectory)' `
             -dest:'C:\inetpub\wwwroot\CICDTest',computerName='DESKTOP-QL56SEK' `
             -allowUntrusted
       
