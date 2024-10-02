@@ -18,12 +18,21 @@ jobs:
     # Step 2: Deploy the code to IIS
     - name: Deploy to IIS
       run: |
-       
-        "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
-            -verb:sync `
-            -source:contentPath="C:\inetpub\wwwroot\CICDTest" `
-            -iisapp:contentPath="C:\inetpub\wwwroot\CICDTest",computerName="DESKTOP-QL56SEK",username="${{ secrets.IIS_USERNAME }}",authType="Basic" `
-            -AllowUntrusted
+        # Set the error action preference to stop on errors
+        $ErrorActionPreference = "Stop"
+
+         # Run MSDeploy command
+        & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" 
+            -verb:sync 
+            -source:contentPath="C:\inetpub\wwwroot\CICDTest" 
+            -dest:auto
+                 ,computerName="DESKTOP-QL56SEK"
+                 ,username="${{ secrets.IIS_USERNAME }}"
+                 ,password="${{ secrets.IIS_PASSWORD }}"
+                 ,authType="Basic" `
+            -allowUntrusted
+      
+
 
     # Step 3: Restart IIS (if necessary)
     - name: Restart IIS
