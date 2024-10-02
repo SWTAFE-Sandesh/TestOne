@@ -34,6 +34,7 @@ jobs:
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
             -dest:contentPath='C:\inetpub\wwwroot\CICDTest',computerName=$computername,username=$username,password=$password,authType='Basic' `
+            -source:contentPath='$env:GITHUB_WORKSPACE' `  
             -allowUntrusted
 
     # Step 4: Restart IIS (if necessary)
