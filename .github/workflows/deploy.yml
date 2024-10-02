@@ -1,0 +1,34 @@
+name: CI/CD - Deploy PHP Application to IIS
+
+# Trigger the workflow on push to the main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    # Step 1: Checkout the latest code from the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Deploy the code to IIS
+    - name: Deploy to IIS
+      run: |
+        # Set the error action preference to stop on errors
+        $ErrorActionPreference = "Stop"
+        
+        # Run MSDeploy command
+        & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
+            -verb:sync `
+            -source:contentPath="." `
+            -dest:contentPath="C:\inetpub\wwwroot\your_site",computerName="localhost",username="<your_username>",password="<your_password>",authType="Basic" `
+            -allowUntrusted
+
+    # Step 3: Restart IIS (if necessary)
+    - name: Restart IIS
+      run: |
+        iisreset
