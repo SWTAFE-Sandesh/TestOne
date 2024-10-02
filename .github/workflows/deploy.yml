@@ -28,7 +28,10 @@ jobs:
             -dest:'C:\inetpub\wwwroot\CICDTest',computerName='DESKTOP-QL56SEK' `
             -allowUntrusted
       
-
+    - name: Print GITHUB_WORKSPACE
+      run: |
+        echo "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
+          
 
     # Step 3: Restart IIS (if necessary)
     - name: Restart IIS
