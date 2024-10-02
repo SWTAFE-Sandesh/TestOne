@@ -1,6 +1,6 @@
 <?php
     phpinfo();
-    echo "hello world two";
+    echo "hello world twos";
 
 
 ?>
