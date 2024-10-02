@@ -22,12 +22,15 @@ jobs:
       run: |
         # Set the error action preference to stop on errors
         $ErrorActionPreference = "Stop"
-
+        $destinationPath = "C:\inetpub\wwwroot\CICDTest"
+        if (-Not (Test-Path $destinationPath)) {
+            New-Item -ItemType Directory -Path $destinationPath
+        }
          # Run MSDeploy command
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
-            -source:contentPath='$env:GITHUB_WORKSPACE' `
-            -dest:'C:\inetpub\wwwroot\CICDTest',computerName='DESKTOP-QL56SEK' `
+            -source:contentPath='$env:GITHUB_WORKSPACE' ` 
+            -dest:'$destinationPath',computerName='DESKTOP-QL56SEK' `
             -allowUntrusted
       
    
