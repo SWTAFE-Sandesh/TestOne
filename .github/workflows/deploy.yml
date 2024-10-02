@@ -14,7 +14,9 @@ jobs:
     # Step 1: Checkout the latest code from the repository
     - name: Checkout Code
       uses: actions/checkout@v3
-
+    - name: Print GITHUB_WORKSPACE
+      run: |
+        echo "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
     # Step 2: Deploy the code to IIS
     - name: Deploy to IIS
       run: |
@@ -28,9 +30,7 @@ jobs:
             -dest:'C:\inetpub\wwwroot\CICDTest',computerName='DESKTOP-QL56SEK' `
             -allowUntrusted
       
-    - name: Print GITHUB_WORKSPACE
-      run: |
-        echo "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
+   
           
 
     # Step 3: Restart IIS (if necessary)
