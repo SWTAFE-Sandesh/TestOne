@@ -1,43 +1,44 @@
-name: CI/CD - Deploy PHP Application to IIS
+name: CI/CD - Deploy to IIS
 
-# Trigger the workflow on push to the main branch
 on:
   push:
     branches:
-      - main
+      - main  # Change this to your desired branch
 
 jobs:
   deploy:
-    runs-on: windows-latest
+    runs-on: windows-latest  # Use a Windows runner
 
     steps:
-    # Step 1: Checkout the latest code from the repository
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the latest code
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-    # Step 2: List files in GITHUB_WORKSPACE for debugging
-    - name: List files in GITHUB_WORKSPACE
-      run: |
-        echo "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
-        Get-ChildItem "$env:GITHUB_WORKSPACE"
+      # Step 2: Deploy to IIS
+      - name: Deploy to IIS
+        run: |
+          $ErrorActionPreference = "Stop"
 
-    # Step 3: Deploy to IIS
-    - name: Deploy to IIS
-      run: |
-        # Set the error action preference to stop on errors
-        $ErrorActionPreference = "Stop"
-        $computername = "${{secrets.IIS_COMPUTERNAME}}"
-        $username = "${{ secrets.IIS_USERNAME }}"
-        $password = "${{ secrets.IIS_PASSWORD }}"
-        $sourcePath = "C:\www\Testone"
-        # Run MSDeploy command
-        & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
-            -source:contentPath='$sourcePath' `  
-            -verb:sync `
-            -dest:contentPath='C:\inetpub\wwwroot\CICDTest',computerName=$computername,username=$username,password=$password,authType='Basic' `
-            -allowUntrusted
+          # Define your variables
+          $sourcePath = "$env:GITHUB_WORKSPACE\src"
+          $destinationPath = "C:\inetpub\wwwroot\CICDTest"
+          $computerName = "${{secrets.IIS_COMPUTERNAME}}"
+          $username = "${{ secrets.IIS_USERNAME }}"
+          $password = "${{ secrets.IIS_PASSWORD }}"
 
-    # Step 4: Restart IIS (if necessary)
-    - name: Restart IIS
-      run: |
-        iisreset
+          # Copy files to IIS
+          $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential($username, $securePassword)
+
+          # Use PowerShell to copy files
+          Invoke-Command -ComputerName $computerName -Credential $credential -ScriptBlock {
+            param ($source, $destination, $creds)
+            Copy-Item -Path $source -Destination $destination -Recurse -Force -Credential $creds
+          } -ArgumentList $sourcePath, $destinationPath, $credential
+
+      # Optional: Restart IIS after deployment
+      - name: Restart IIS
+        run: |
+          Invoke-Command -ComputerName $computerName -Credential $credential -ScriptBlock {
+              iisreset
+          }
