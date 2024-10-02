@@ -29,13 +29,13 @@ jobs:
         $computername = "${{secrets.IIS_COMPUTERNAME}}"
         $username = "${{ secrets.IIS_USERNAME }}"
         $password = "${{ secrets.IIS_PASSWORD }}"
-
+        $sourcePath = "C:\www\Testone"
         # Run MSDeploy command
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
+            -source:contentPath='$sourcePath' `  
             -dest:contentPath='C:\inetpub\wwwroot\CICDTest',computerName=$computername,username=$username,password=$password,authType='Basic' `
             -allowUntrusted
-           
 
     # Step 4: Restart IIS (if necessary)
     - name: Restart IIS
