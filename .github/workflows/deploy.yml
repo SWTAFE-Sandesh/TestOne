@@ -24,8 +24,8 @@ jobs:
          # Run MSDeploy command
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" 
             -verb:sync 
-            -source:contentPath="C:\inetpub\wwwroot\CICDTest" 
-            -dest:auto
+            -source:contentPath="." 
+            -dest:'C:\inetpub\wwwroot\CICDTest'
                  ,computerName="DESKTOP-QL56SEK"
                  ,username="${{ secrets.IIS_USERNAME }}"
                  ,password="${{ secrets.IIS_PASSWORD }}"
