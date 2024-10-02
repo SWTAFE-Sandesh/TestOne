@@ -14,29 +14,33 @@ jobs:
     # Step 1: Checkout the latest code from the repository
     - name: Checkout Code
       uses: actions/checkout@v3
-    - name: Print GITHUB_WORKSPACE
+
+    # Step 2: List files in GITHUB_WORKSPACE for debugging
+    - name: List files in GITHUB_WORKSPACE
       run: |
         echo "GITHUB_WORKSPACE: $env:GITHUB_WORKSPACE"
-    # Step 2: Deploy the code to IIS
+        Get-ChildItem "$env:GITHUB_WORKSPACE"
+
+    # Step 3: Deploy to IIS
     - name: Deploy to IIS
       run: |
         # Set the error action preference to stop on errors
         $ErrorActionPreference = "Stop"
+
+        # Ensure that the destination path exists
         $destinationPath = "C:\inetpub\wwwroot\CICDTest"
         if (-Not (Test-Path $destinationPath)) {
             New-Item -ItemType Directory -Path $destinationPath
         }
-         # Run MSDeploy command
+
+        # Run MSDeploy command
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
-            -source:contentPath='$env:GITHUB_WORKSPACE' ` 
-            -dest:'$destinationPath',computerName='DESKTOP-QL56SEK' `
+            -source:contentPath="$env:GITHUB_WORKSPACE" `  # Use the correct path to your repository code
+            -dest:contentPath="$destinationPath",computerName="DESKTOP-QL56SEK",username="desktop-ql56sek\swtafe",password="SWTAFE2024",authType="Basic" `
             -allowUntrusted
-      
-   
-          
 
-    # Step 3: Restart IIS (if necessary)
+    # Step 4: Restart IIS (if necessary)
     - name: Restart IIS
       run: |
         iisreset
