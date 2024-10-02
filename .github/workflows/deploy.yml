@@ -25,8 +25,8 @@ jobs:
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
             -source:contentPath="C:\inetpub\wwwroot\CICDTest" `
-            -dest:contentPath="C:\inetpub\wwwroot\CICDTest",computerName="DESKTOP-QL56SEK",username=${{ secrets.IIS_USERNAME }},authType="Basic" `
-            -allowUntrusted
+            -iisapp:contentPath="C:\inetpub\wwwroot\CICDTest",computerName="DESKTOP-QL56SEK",username="${{ secrets.IIS_USERNAME }}",authType="Basic" `
+            -AllowUntrusted
 
     # Step 3: Restart IIS (if necessary)
     - name: Restart IIS
