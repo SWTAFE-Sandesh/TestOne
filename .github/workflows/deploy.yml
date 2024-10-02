@@ -27,17 +27,14 @@ jobs:
         # Set the error action preference to stop on errors
         $ErrorActionPreference = "Stop"
 
-        # Ensure that the destination path exists
-        $destinationPath = "C:\inetpub\wwwroot\CICDTest"
-        if (-Not (Test-Path $destinationPath)) {
-            New-Item -ItemType Directory -Path $destinationPath
-        }
+        $username = "${{ secrets.IIS_USERNAME }}"
+        $password = "${{ secrets.IIS_PASSWORD }}"
 
         # Run MSDeploy command
         & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
             -verb:sync `
             -source:contentPath='$env:GITHUB_WORKSPACE' `  
-            -dest contentPath='C:\inetpub\wwwroot\CICDTest',computerName='DESKTOP-QL56SEK',username='desktop-ql56sek\\swtafe',password='SWTAFE2024',authType='Basic' `
+            -dest contentPath='C:\inetpub\wwwroot\CICDTest',computerName='DESKTOP-QL56SEK',username=$username,password=$password,authType='Basic' `
             -allowUntrusted
 
     # Step 4: Restart IIS (if necessary)
