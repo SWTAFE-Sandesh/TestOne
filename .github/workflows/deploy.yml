@@ -21,11 +21,15 @@ jobs:
 
     
 
+      
       - name: Deploy to IIS
         run: |
           # Adjust the destination path as needed
           $sourcePath = "$env:GITHUB_WORKSPACE\*"
           $destinationPath = "C:\inetpub\wwwroot"  # IIS web root
+
+          Write-Host "Source Path: $sourcePath"
+          Write-Host "Destination Path: $destinationPath"
 
           # Ensure destination path exists
           if (!(Test-Path -Path $destinationPath)) {
@@ -34,3 +38,6 @@ jobs:
 
           # Copy files to IIS web root
           Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force
+
+          # List files in destination to verify
+          Get-ChildItem -Path $destinationPath
