@@ -1,44 +1,41 @@
-name: CI/CD - Deploy to IIS
+name: Test and Deploy PHP to IIS
 
 on:
   push:
     branches:
-      - main  # Change this to your desired branch
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
-    runs-on: windows-latest  # Use a Windows runner
-
+  test:
+    runs-on: ubuntu-latest  # This is for testing on a Linux runner
     steps:
-      # Step 1: Checkout the latest code
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Step 2: Deploy to IIS
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: mbstring, mysqli, intl
+
+      - name: Run PHP linting
+        run: php -l index.php
+
+      - name: Run PHPUnit tests
+        run: |
+          ./vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
+
+  deploy:
+    needs: test
+    runs-on: windows-latest  # Change to Windows runner for IIS deployment
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Deploy to IIS
         run: |
-          $ErrorActionPreference = "Stop"
-
-          # Define your variables
-          $sourcePath = "$env:GITHUB_WORKSPACE\src"
-          $destinationPath = "C:\inetpub\wwwroot\CICDTest"
-          $computerName = "${{secrets.IIS_COMPUTERNAME}}"
-          $username = "${{ secrets.IIS_USERNAME }}"
-          $password = "${{ secrets.IIS_PASSWORD }}"
-
-          # Copy files to IIS
-          $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential($username, $securePassword)
-
-          # Use PowerShell to copy files
-          Invoke-Command -ComputerName $computerName -Credential $credential -ScriptBlock {
-            param ($source, $destination, $creds)
-            Copy-Item -Path $source -Destination $destination -Recurse -Force -Credential $creds
-          } -ArgumentList $sourcePath, $destinationPath, $credential
-
-      # Optional: Restart IIS after deployment
-      - name: Restart IIS
-        run: |
-          Invoke-Command -ComputerName $computerName -Credential $credential -ScriptBlock {
-              iisreset
-          }
+          Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\www\" -Recurse -Force
