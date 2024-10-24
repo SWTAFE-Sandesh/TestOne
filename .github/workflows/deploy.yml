@@ -26,7 +26,7 @@ jobs:
         run: |
           # Adjust the destination path as needed
           $sourcePath = "$env:GITHUB_WORKSPACE\*"
-          $destinationPath = "C:\inetpub\wwwroot"  # IIS web root
+          $destinationPath = "C:\inetpub\wwwroot\TestProduct"  
 
           Write-Host "Source Path: $sourcePath"
           Write-Host "Destination Path: $destinationPath"
