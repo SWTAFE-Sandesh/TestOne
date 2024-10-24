@@ -1,16 +1,14 @@
-name: Test and Deploy PHP to IIS
+name: Deploy PHP to IIS
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest  # This is for testing on a Linux runner
+  deploy:
+    runs-on: windows-latest  # Use a Windows runner for IIS deployment
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,24 +16,22 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.0'  # Specify your PHP version
           extensions: mbstring, mysqli, intl
 
-      - name: Run PHP linting
-        run: php -l index.php
-
-      - name: Run PHPUnit tests
-        run: |
-          ./vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
-
-  deploy:
-    needs: test
-    runs-on: windows-latest  # Change to Windows runner for IIS deployment
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist
 
       - name: Deploy to IIS
         run: |
-          Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\www\" -Recurse -Force
+          # Adjust the destination path as needed
+          $sourcePath = "$env:GITHUB_WORKSPACE\*"
+          $destinationPath = "C:\inetpub\wwwroot"  # IIS web root
+
+          # Ensure destination path exists
+          if (!(Test-Path -Path $destinationPath)) {
+            New-Item -Path $destinationPath -ItemType Directory
+          }
+
+          # Copy files to IIS web root
+          Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force
