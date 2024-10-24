@@ -19,14 +19,15 @@ jobs:
           php-version: '8.0'  # Specify your PHP version
           extensions: mbstring, mysqli, intl
 
-    
+      - name: List Workspace Contents
+        run: |
+          Get-ChildItem -Path "$env:GITHUB_WORKSPACE"
 
-      
       - name: Deploy to IIS
         run: |
           # Adjust the destination path as needed
           $sourcePath = "$env:GITHUB_WORKSPACE\*"
-          $destinationPath = "C:\inetpub\wwwroot\TestProduct"  
+          $destinationPath = "C:\inetpub\wwwroot\TestProduct"  # IIS web root
 
           Write-Host "Source Path: $sourcePath"
           Write-Host "Destination Path: $destinationPath"
@@ -37,7 +38,8 @@ jobs:
           }
 
           # Copy files to IIS web root
-          Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force
+          Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force -Verbose
 
-          # List files in destination to verify
+      - name: Verify Deployment
+        run: |
           Get-ChildItem -Path $destinationPath
