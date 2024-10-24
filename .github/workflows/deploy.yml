@@ -19,8 +19,7 @@ jobs:
           php-version: '8.0'  # Specify your PHP version
           extensions: mbstring, mysqli, intl
 
-      - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist
+    
 
       - name: Deploy to IIS
         run: |
