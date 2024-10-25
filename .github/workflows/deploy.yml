@@ -10,24 +10,20 @@ jobs:
     runs-on: windows-latest  # Use a Windows runner for IIS deployment
 
     steps:
+      # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.0'  # Specify your PHP version
-          extensions: mbstring, mysqli, intl
-
+      # Step 2: List the contents of the workspace to verify files are present
       - name: List Workspace Contents
         run: |
-          Get-ChildItem -Path "$env:GITHUB_WORKSPACE"
+          Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse
 
+      # Step 3: Copy the files from the workspace to IIS web root
       - name: Deploy to IIS
         run: |
-          # Adjust the destination path as needed
-          $sourcePath = "$env:GITHUB_WORKSPACE\*"
-          $destinationPath = "C:\inetpub\wwwroot\TestProduct"  # IIS web root
+          $sourcePath = "$env:GITHUB_WORKSPACE\*"  # Points to the workspace directory
+          $destinationPath = "C:\inetpub\wwwroot"  # IIS web root
 
           Write-Host "Source Path: $sourcePath"
           Write-Host "Destination Path: $destinationPath"
@@ -37,9 +33,10 @@ jobs:
             New-Item -Path $destinationPath -ItemType Directory
           }
 
-          # Copy files to IIS web root
+          # Copy the files from the workspace to the IIS web root
           Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force -Verbose
 
+      # Step 4: Verify the files were copied to IIS
       - name: Verify Deployment
         run: |
-          Get-ChildItem -Path $destinationPath
+          Get-ChildItem -Path "C:\inetpub\wwwroot" -Recurse
